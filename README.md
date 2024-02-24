@@ -3,6 +3,12 @@
 This is a library for solving classification problems using the k-nearest neighbor (k-nn) algorithm.
 Due to the simplicity of the algorithm, it is lightweight and well-suited for easily solving classification problems.
 
+## Install
+
+```sh
+cargo add knn_classifier
+```
+
 ## Simple Example
 
 The following sample is a program that determines if a person is of normal weight or fat, based on their height(cm) and weight(kg).

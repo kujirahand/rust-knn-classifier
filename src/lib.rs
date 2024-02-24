@@ -3,7 +3,7 @@
 //!
 //! # Simple Example
 //!
-//! The following sample is a program that determines if a person is of normal weight or fat, based on their height(cm) and weight(kg).
+//! The following sample is a program that determines if a person is of normal weight or Obesity, based on their height(cm) and weight(kg).
 //!
 //! ```rs
 //! use knn_classifier::KnnClassifier;
@@ -13,11 +13,11 @@
 //!     // Learn from data
 //!     clf.fit(
 //!         &[&[170., 60.], &[166., 58.], &[152., 99.], &[163., 95.], &[150., 90.]],
-//!         &["Normal", "Normal", "Fat", "Fat", "Fat"]);
+//!         &["Normal", "Normal", "Obesity", "Obesity", "Obesity"]);
 //!     // Predict
 //!     let labels = clf.predict(&[&[159., 85.], &[165., 55.]]);
-//!     println!("{:?}", labels); // ["Fat", "Normal"]
-//!     assert_eq!(labels, ["Fat", "Normal"]);
+//!     println!("{:?}", labels); // ["Obesity", "Normal"]
+//!     assert_eq!(labels, ["Obesity", "Normal"]);
 //! }
 //! ```
 //!
@@ -35,7 +35,7 @@
 //! 
 //! // Predict one
 //! let label = clf.predict_one(&[150., 80.]);
-//! assert_eq!(label, "Fat");
+//! assert_eq!(label, "Obesity");
 //! ```
 //!
 //! # Reference
@@ -56,7 +56,9 @@ pub struct KnnClassifier {
     pub items: Vec<KnnItem>,
 }
 impl KnnClassifier {
+    /// new classifier with k (0 or odd number)
     pub fn new(k: usize) -> KnnClassifier {
+        // check k, should be odd number
         let k = if k > 0 { k } else { 5 };
         let k = if k % 2 == 1 { k } else { k + 1 };
         KnnClassifier { k, items: vec![] }
@@ -139,7 +141,7 @@ mod tests {
 
     #[test]
     fn test_knn1() {
-        // fat: 肥満 > normal: 標準 > thin: 痩せ
+        // Obesity: 肥満 > normal: 標準 > thin: 痩せ
         let mut c = KnnClassifier::new(5);
         c.fit_one(&[150.0, 80.0], "肥満");
         c.fit_one(&[153.0, 69.0], "肥満");
@@ -181,8 +183,19 @@ mod tests {
     }
     #[test]
     fn test_knn2() {
-        // fat: 肥満 > normal: 標準 > thin: 痩せ
+        // Obesity: 肥満 > normal: 標準 > thin: 痩せ
         let mut c = KnnClassifier::new(5);
+        c.fit(
+            &[&[150.0, 80.0], &[153.0, 69.0], &[153.0, 94.0], &[189.0, 96.0], &[159.0, 74.0], &[169.0, 64.0], &[171.0, 64.0], &[186.0, 59.0], &[173.0, 84.0], &[156.0, 77.0], &[174.0, 46.0], &[174.0, 54.0], &[162.0, 77.0], &[151.0, 76.0], &[188.0, 55.0], &[189.0, 97.0], &[173.0, 68.0], &[174.0, 80.0], &[167.0, 56.0], &[187.0, 95.0], &[175.0, 100.0], &[163.0, 73.0], &[158.0, 79.0], &[159.0, 45.0], &[170.0, 45.0], &[166.0, 81.0], &[155.0, 98.0], &[165.0, 50.0], &[150.0, 83.0], &[168.0, 85.0]], 
+            &["肥満", "肥満", "肥満", "肥満", "肥満", "標準", "標準", "痩せ", "肥満", "肥満", "痩せ", "痩せ", "肥満", "肥満", "痩せ", "肥満", "標準", "肥満", "標準", "肥満", "肥満", "肥満", "肥満", "痩せ", "痩せ", "肥満", "肥満", "痩せ", "肥満", "肥満"]);
+        // predict
+        let labels = c.predict(&[&[159.0, 85.0], &[162.0, 58.0], &[183.0, 48.0]]);
+        assert_eq!(labels, ["肥満", "標準", "痩せ"]);
+    }
+    #[test]
+    fn test_knn3() {
+        // set k = 0
+        let mut c = KnnClassifier::new(0);
         c.fit(
             &[&[150.0, 80.0], &[153.0, 69.0], &[153.0, 94.0], &[189.0, 96.0], &[159.0, 74.0], &[169.0, 64.0], &[171.0, 64.0], &[186.0, 59.0], &[173.0, 84.0], &[156.0, 77.0], &[174.0, 46.0], &[174.0, 54.0], &[162.0, 77.0], &[151.0, 76.0], &[188.0, 55.0], &[189.0, 97.0], &[173.0, 68.0], &[174.0, 80.0], &[167.0, 56.0], &[187.0, 95.0], &[175.0, 100.0], &[163.0, 73.0], &[158.0, 79.0], &[159.0, 45.0], &[170.0, 45.0], &[166.0, 81.0], &[155.0, 98.0], &[165.0, 50.0], &[150.0, 83.0], &[168.0, 85.0]], 
             &["肥満", "肥満", "肥満", "肥満", "肥満", "標準", "標準", "痩せ", "肥満", "肥満", "痩せ", "痩せ", "肥満", "肥満", "痩せ", "肥満", "標準", "肥満", "標準", "肥満", "肥満", "肥満", "肥満", "痩せ", "痩せ", "肥満", "肥満", "痩せ", "肥満", "肥満"]);

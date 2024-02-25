@@ -1,7 +1,7 @@
 workspace = { members = ["samples/iris"] }
 [package]
 name = "knn_classifier"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["kujirahand<web@kujirahand.com>"]
 description = "This simple library is a classifier for the k-Nearest Neighbors (kNN/k-nn) algorithm."

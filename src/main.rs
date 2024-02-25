@@ -7,7 +7,7 @@ fn main() {
         &[&[170., 60.], &[166., 58.], &[152., 99.], &[163., 95.], &[150., 90.]],
         &["Normal", "Normal", "Obesity", "Obesity", "Obesity"]);
     // Predict
-    let labels = clf.predict(&[&[159., 85.], &[165., 55.]]);
+    let labels = clf.predict(&[vec![159., 85.], vec![165., 55.]]);
     println!("{:?}", labels); // ["Obesity", "Normal"]
     assert_eq!(labels, ["Obesity", "Normal"]);
 
@@ -16,7 +16,7 @@ fn main() {
     println!("{}", s);
 
     // Convert from CSV
-    clf.from_csv(&s, ',');
+    clf.from_csv(&s, ',', 0, false);
     // Predict one
     let label = clf.predict_one(&[150., 80.]);
     assert_eq!(label, "Obesity");

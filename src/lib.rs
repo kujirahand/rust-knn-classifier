@@ -30,8 +30,8 @@
 //! let s = clf.to_csv(',');
 //! println!("{}", s);
 //! 
-//! // Convert from CSV
-//! clf.from_csv(&s, ',');
+//! // Convert from CSV (Label columns is 0)
+//! clf.from_csv(&s, ',', 0);
 //! 
 //! // Predict one
 //! let label = clf.predict_one(&[150., 80.]);
@@ -95,7 +95,7 @@ impl KnnClassifier {
         label.clone()
     }
     // Function to predict based on multiple data points
-    pub fn predict(&self, items: &[&[f64]]) -> Vec<String> {
+    pub fn predict(&self, items: &[Vec<f64>]) -> Vec<String> {
         items.iter().map(|it| self.predict_one(&it.to_vec())).collect()
     }
     /// convert to csv
@@ -114,15 +114,20 @@ impl KnnClassifier {
         s
     }
     /// convert from csv
-    pub fn from_csv(&mut self, s: &str, delimiter: char) {
-        for line in s.lines() {
+    pub fn from_csv(&mut self, s: &str, delimiter: char, label_col: usize, skip_header: bool) {
+        // read csv line
+        for (i, line) in s.lines().enumerate() {
+            if skip_header && i == 0 { continue; }
             let line = line.trim();
             if line == "" { continue; }
             let mut it = KnnItem { label: "".to_string(), data: vec![] };
-            let mut iter = line.split(delimiter);
-            it.label = iter.next().unwrap().trim().to_string();
-            for d in iter {
-                it.data.push(d.trim().parse().unwrap());
+            let columns_iter = line.split(delimiter);
+            for (i, d) in columns_iter.enumerate() {
+                if i == label_col {
+                    it.label = d.trim().to_string();
+                } else {
+                    it.data.push(d.trim().parse().unwrap());
+                }
             }
             self.items.push(it);
         }
@@ -189,7 +194,7 @@ mod tests {
             &[&[150.0, 80.0], &[153.0, 69.0], &[153.0, 94.0], &[189.0, 96.0], &[159.0, 74.0], &[169.0, 64.0], &[171.0, 64.0], &[186.0, 59.0], &[173.0, 84.0], &[156.0, 77.0], &[174.0, 46.0], &[174.0, 54.0], &[162.0, 77.0], &[151.0, 76.0], &[188.0, 55.0], &[189.0, 97.0], &[173.0, 68.0], &[174.0, 80.0], &[167.0, 56.0], &[187.0, 95.0], &[175.0, 100.0], &[163.0, 73.0], &[158.0, 79.0], &[159.0, 45.0], &[170.0, 45.0], &[166.0, 81.0], &[155.0, 98.0], &[165.0, 50.0], &[150.0, 83.0], &[168.0, 85.0]], 
             &["肥満", "肥満", "肥満", "肥満", "肥満", "標準", "標準", "痩せ", "肥満", "肥満", "痩せ", "痩せ", "肥満", "肥満", "痩せ", "肥満", "標準", "肥満", "標準", "肥満", "肥満", "肥満", "肥満", "痩せ", "痩せ", "肥満", "肥満", "痩せ", "肥満", "肥満"]);
         // predict
-        let labels = c.predict(&[&[159.0, 85.0], &[162.0, 58.0], &[183.0, 48.0]]);
+        let labels = c.predict(&[vec![159.0, 85.0], vec![162.0, 58.0], vec![183.0, 48.0]]);
         assert_eq!(labels, ["肥満", "標準", "痩せ"]);
     }
     #[test]
@@ -200,7 +205,7 @@ mod tests {
             &[&[150.0, 80.0], &[153.0, 69.0], &[153.0, 94.0], &[189.0, 96.0], &[159.0, 74.0], &[169.0, 64.0], &[171.0, 64.0], &[186.0, 59.0], &[173.0, 84.0], &[156.0, 77.0], &[174.0, 46.0], &[174.0, 54.0], &[162.0, 77.0], &[151.0, 76.0], &[188.0, 55.0], &[189.0, 97.0], &[173.0, 68.0], &[174.0, 80.0], &[167.0, 56.0], &[187.0, 95.0], &[175.0, 100.0], &[163.0, 73.0], &[158.0, 79.0], &[159.0, 45.0], &[170.0, 45.0], &[166.0, 81.0], &[155.0, 98.0], &[165.0, 50.0], &[150.0, 83.0], &[168.0, 85.0]], 
             &["肥満", "肥満", "肥満", "肥満", "肥満", "標準", "標準", "痩せ", "肥満", "肥満", "痩せ", "痩せ", "肥満", "肥満", "痩せ", "肥満", "標準", "肥満", "標準", "肥満", "肥満", "肥満", "肥満", "痩せ", "痩せ", "肥満", "肥満", "痩せ", "肥満", "肥満"]);
         // predict
-        let labels = c.predict(&[&[159.0, 85.0], &[162.0, 58.0], &[183.0, 48.0]]);
+        let labels = c.predict(&[vec![159.0, 85.0], vec![162.0, 58.0], vec![183.0, 48.0]]);
         assert_eq!(labels, ["肥満", "標準", "痩せ"]);
     }
     #[test]
@@ -214,11 +219,11 @@ mod tests {
         assert_eq!(s, "肥満,150,80\n肥満,153,69\n肥満,153,94\n");
         //
         let mut c = KnnClassifier::new(5);
-        c.from_csv(&s, ',');
+        c.from_csv(&s, ',', 0, false);
         assert_eq!(&c.to_csv(','), "肥満,150,80\n肥満,153,69\n肥満,153,94\n");
         //
         let mut c = KnnClassifier::new(5);
-        c.from_csv("肥満, 150, 80\n肥満 , 153, 69.0\n 肥満, 153, 94.0\n", ',');
+        c.from_csv("肥満, 150, 80\n肥満 , 153, 69.0\n 肥満, 153, 94.0\n", ',', 0, false);
         assert_eq!(&c.to_csv(','), "肥満,150,80\n肥満,153,69\n肥満,153,94\n");
     }
 }

@@ -1,0 +1,13 @@
+[package]
+name = "iris"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.knn_classifier]
+path="../../"
+
+[dependencies]
+lazyrand = "0.1.12"
+

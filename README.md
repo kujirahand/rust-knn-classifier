@@ -50,6 +50,12 @@ assert_eq!(label, "Obesity");
 
 - [iris](/samples/iris/README.md)
 
+## Repository
+
+- [github > knn_classifier](https://github.com/kujirahand/rust-knn-classifier)
+- [crates.io > knn_classifier](https://crates.io/crates/knn_classifier)
+- [docs.rs > knn_classifier](https://docs.rs/knn_classifier/)
+
 ## Reference
 
 - [k-NN algorithm](https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm)
